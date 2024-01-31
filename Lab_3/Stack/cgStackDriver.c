@@ -1,9 +1,18 @@
 #include "stack.h"
 #include "heap_usage.h"
+#include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 Element iftoe (int i, float f);
+
+double time_calc(struct timeval t1, struct timeval t2) {
+    double time_taken;
+    time_taken = (t2.tv_sec - t1.tv_sec) * 1e6;
+    time_taken = (time_taken + (t2.tv_usec - t1.tv_usec)) * 1e-6;
+    return time_taken;
+}
+
 int main(int argc, char *argv[])
 {
     FILE *fp;
@@ -24,6 +33,12 @@ int main(int argc, char *argv[])
     /*
         Write code to initialize a stack and a time-performance variable
     */
+
+    struct timeval t1, t2;
+    double time_taken = 0;
+
+    Stack *s = newStack();
+
     int score = 0;
     float cg = 0;
     int i = 0;
@@ -40,6 +55,11 @@ int main(int argc, char *argv[])
         /*
             Write code to push the score and cg values into the stack while tracking the time and heap performance
         */
+        gettimeofday(&t1, NULL);
+        push(s, iftoe(score, cg));
+        gettimeofday(&t2, NULL);
+
+        time_taken += time_calc(t1, t2);
         i++;
     }
     fclose(fp);
@@ -48,13 +68,29 @@ int main(int argc, char *argv[])
         Write code to print the time taken and heap space utilized for pushing the values into the stack
     */
 
+    printf("Time taken to push values into stack: %f\n", time_taken);
+    printf("Heap space utilized for pushing values into stack: %ld\n", heapMemoryAllocated);
+
     /*
         Write code to empty the stack and print and measure the time taken for the emptying process
     */
 
+    gettimeofday(&t1, NULL);
+    while(!isEmpty(s))
+    {
+        Element *e = pop(s);
+    }
+    freeStack(s);
+    gettimeofday(&t2, NULL);
+
+    time_taken = time_calc(t1, t2);
+
     /*
         Print the total time taken for the entire process and the maximum heap usage throughout the process
     */
+
+    printf("Time taken to empty stack: %f\n", time_taken);
+    printf("Heap space utilized for emptying stack: %ld\n", heapMemoryAllocated);
 }
 Element iftoe (int i, float f)
 {
